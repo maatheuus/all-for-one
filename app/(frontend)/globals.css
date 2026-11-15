@@ -151,6 +151,14 @@
   --sidebar-ring: #c8f169;
 }
 
+:root {
+  /* Keeps toasts above the mobile bottom nav. */
+  --toast-bottom: 88px;
+  @media (width >= 64rem) {
+    --toast-bottom: 24px;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

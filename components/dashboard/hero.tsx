@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { AnimatePresence, motion } from "motion/react"
 import { greeting } from "@/lib/hub"
+import { cn } from "@/lib/utils"
 import { ease, rise } from "./motion"
 
 function RollingText({ text }: { text: string }) {
@@ -77,7 +78,14 @@ export function Hero({
         <p className="mb-3 text-sm font-medium text-muted-foreground first-letter:uppercase">{dateLabel}</p>
         <h1 className="text-[clamp(2.75rem,7vw,5.5rem)] leading-[0.95] font-semibold tracking-[-0.045em]">
           {words.map((word, i) => (
-            <span key={i} className="mr-[0.22em] inline-flex overflow-hidden pb-[0.08em] align-bottom">
+            <span
+              key={i}
+              // Italic glyphs overhang their box; side padding (offset by margins) keeps the overflow clip off the ink.
+              className={cn(
+                "inline-flex overflow-hidden pb-[0.08em] align-bottom",
+                i === 1 ? "-ml-[0.08em] mr-[0.14em] px-[0.08em]" : "mr-[0.22em]",
+              )}
+            >
               <motion.span
                 className={i === 1 ? "font-serif font-normal tracking-[-0.02em] italic" : undefined}
                 initial={{ y: "110%" }}

@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "payload": "payload",
-    "seed:admin": "payload run scripts/seed-admin.ts"
+    "seed:admin": "payload run scripts/seed-admin.ts",
+    "seed:hub": "payload run scripts/seed-hub.ts"
   },
   "dependencies": {
     "@payloadcms/db-sqlite": "^3.93.0",

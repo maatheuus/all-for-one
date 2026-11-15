@@ -6,7 +6,7 @@ import { toast } from "sonner"
 import { ArrowUpRightIcon, CheckIcon, PlusIcon, XIcon } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 import { getDomain, normalizeUrl } from "@/lib/hub"
-import type { ReadLaterItem } from "@/lib/mock-data"
+import type { ReadLaterItem } from "@/lib/types"
 import { rise } from "./motion"
 
 export function ReadLater({

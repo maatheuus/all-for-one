@@ -11,7 +11,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <MotionConfig reducedMotion="user" transition={{ type: "spring", stiffness: 380, damping: 32 }}>
         <TooltipProvider delayDuration={250}>
           {children}
-          <Toaster position="bottom-center" />
+          <Toaster
+            position="bottom-center"
+            offset={{ bottom: "var(--toast-bottom)" }}
+            mobileOffset={{ bottom: "var(--toast-bottom)" }}
+          />
         </TooltipProvider>
       </MotionConfig>
     </ThemeProvider>

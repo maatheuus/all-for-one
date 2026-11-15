@@ -1,22 +1,31 @@
-import { initialData, type HubData } from "@/lib/mock-data"
+import type { LocalData } from "@/lib/types"
 
-const STORAGE_KEY = "all-for-one:v1"
+const STORAGE_KEY = "all-for-one:v2"
 
-export function loadHubData(): HubData {
+const emptyLocal: LocalData = { usage: {}, readLater: [], notes: "", activity: {} }
+
+export function loadLocalData(): LocalData {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? { ...initialData, ...JSON.parse(raw) } : initialData
+    return raw ? { ...emptyLocal, ...JSON.parse(raw) } : emptyLocal
   } catch {
-    return initialData
+    return emptyLocal
   }
 }
 
-export function saveHubData(data: HubData) {
+export function saveLocalData(data: LocalData) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
   } catch {
     // Storage full or blocked (private mode): the hub still works for this session.
   }
+}
+
+/** Local calendar day as YYYY-MM-DD, `offset` days from today. */
+export function dayKey(offset = 0) {
+  const d = new Date()
+  d.setDate(d.getDate() + offset)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
 }
 
 export function getDomain(url: string) {
@@ -28,7 +37,8 @@ export function getDomain(url: string) {
 }
 
 export function faviconUrl(url: string) {
-  return `https://www.google.com/s2/favicons?domain=${getDomain(url)}&sz=64`
+  // domain_url (full origin) resolves subdomain icons; domain= collapses calendar/mail.google.com to the Google "G".
+  return `https://www.google.com/s2/favicons?domain_url=${encodeURIComponent(`https://${getDomain(url)}`)}&sz=64`
 }
 
 /** Accepts "github.com" or "https://github.com" and returns a full URL, or null. */

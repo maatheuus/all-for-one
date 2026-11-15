@@ -2,7 +2,7 @@
 
 import { motion } from "motion/react"
 import { ArrowUpRightIcon, LightningIcon, PlayIcon, SparkleIcon } from "@phosphor-icons/react"
-import type { LinkItem, Routine } from "@/lib/mock-data"
+import type { LinkItem, Routine } from "@/lib/types"
 import { Favicon } from "./favicon"
 import { rise } from "./motion"
 

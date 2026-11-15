@@ -2,7 +2,7 @@
 
 import { motion } from "motion/react"
 import { ClockCounterClockwiseIcon } from "@phosphor-icons/react"
-import type { LinkItem } from "@/lib/mock-data"
+import type { LinkItem } from "@/lib/types"
 import { Favicon } from "./favicon"
 import { rise } from "./motion"
 

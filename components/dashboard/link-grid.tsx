@@ -1,12 +1,15 @@
 "use client"
 
+import { useState } from "react"
 import { AnimatePresence, motion } from "motion/react"
 import { MagnifyingGlassIcon } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
-import { categories, type CategoryId, type LinkItem } from "@/lib/mock-data"
+import type { Category, LinkItem } from "@/lib/types"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { LinkCard } from "./link-card"
 import { rise } from "./motion"
+
+const MOBILE_LIMIT = 8
 
 export type SortMode = "popular" | "recent" | "alpha"
 
@@ -18,6 +21,7 @@ const sorters: Record<SortMode, (a: LinkItem, b: LinkItem) => number> = {
 
 export function LinkGrid({
   links,
+  categories,
   pinnedIds,
   category,
   sort,
@@ -29,19 +33,22 @@ export function LinkGrid({
   onDelete,
 }: {
   links: LinkItem[]
+  categories: Category[]
   pinnedIds: Set<string>
-  category: CategoryId | "all"
+  category: string
   sort: SortMode
-  onCategoryChange: (category: CategoryId | "all") => void
+  onCategoryChange: (category: string) => void
   onSortChange: (sort: SortMode) => void
   onOpened: (link: LinkItem) => void
   onTogglePin: (id: string) => void
   onEdit: (link: LinkItem) => void
   onDelete: (link: LinkItem) => void
 }) {
+  const [expanded, setExpanded] = useState(false)
+  const toneOf = new Map(categories.map((c) => [c.id, c.tone]))
   const visible = links.filter((l) => category === "all" || l.category === category).sort(sorters[sort])
   const filters = [
-    { id: "all" as const, label: "Todos", count: links.length },
+    { id: "all", label: "Todos", count: links.length },
     ...categories.map((c) => ({ id: c.id, label: c.label, count: links.filter((l) => l.category === c.id).length })),
   ].filter((f) => f.count > 0)
 
@@ -63,7 +70,8 @@ export function LinkGrid({
         </Select>
       </div>
 
-      <div className="-mx-4 mb-5 overflow-x-auto px-4 scrollbar-none sm:mx-0 sm:px-0">
+      {/* Padding keeps the focus ring inside the scroll container's clip box. */}
+      <div className="-mx-4 mb-4 overflow-x-auto px-4 py-1 scrollbar-none sm:-mx-1 sm:px-1">
         <div role="tablist" aria-label="Categorias" className="flex w-max gap-1.5">
           {filters.map((f) => {
             const active = f.id === category
@@ -98,12 +106,14 @@ export function LinkGrid({
         </div>
       </div>
 
-      <motion.div layout className="grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4">
+      <motion.div layout className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3 md:grid-cols-3 2xl:grid-cols-4">
         <AnimatePresence mode="popLayout" initial={false}>
-          {visible.map((link) => (
+          {visible.map((link, i) => (
             <LinkCard
               key={link.id}
               link={link}
+              tone={toneOf.get(link.category) ?? "sky"}
+              className={!expanded && i >= MOBILE_LIMIT ? "max-sm:hidden" : undefined}
               pinned={pinnedIds.has(link.id)}
               onOpened={() => onOpened(link)}
               onTogglePin={() => onTogglePin(link.id)}
@@ -113,6 +123,16 @@ export function LinkGrid({
           ))}
         </AnimatePresence>
       </motion.div>
+
+      {visible.length > MOBILE_LIMIT && (
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          className="mt-3 h-10 w-full rounded-full border text-sm font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 sm:hidden"
+        >
+          {expanded ? "Mostrar menos" : `Ver todos · ${visible.length}`}
+        </button>
+      )}
 
       {visible.length === 0 && (
         <div className="grid place-items-center gap-2 rounded-3xl border border-dashed py-14 text-center text-sm text-muted-foreground">

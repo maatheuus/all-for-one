@@ -4,7 +4,7 @@ import { useState } from "react"
 import { PushPinIcon } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 import { normalizeUrl, titleFromUrl } from "@/lib/hub"
-import { categories, type CategoryId, type LinkItem } from "@/lib/mock-data"
+import type { Category, LinkItem } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -23,19 +23,21 @@ import { Favicon } from "./favicon"
 export type LinkDraft = {
   title: string
   url: string
-  category: CategoryId
+  category: string
   description?: string
   pinned: boolean
 }
 
 /** Parent remounts this form (via `key`) whenever the dialog opens for a different link. */
 function LinkForm({
+  categories,
   link,
   initialUrl,
   initiallyPinned,
   onSubmit,
   onCancel,
 }: {
+  categories: Category[]
   link?: LinkItem
   initialUrl?: string
   initiallyPinned: boolean
@@ -44,7 +46,7 @@ function LinkForm({
 }) {
   const [url, setUrl] = useState(link?.url ?? initialUrl ?? "")
   const [title, setTitle] = useState(link?.title ?? "")
-  const [category, setCategory] = useState<CategoryId>(link?.category ?? "work")
+  const [category, setCategory] = useState(link?.category ?? categories[0]?.id ?? "")
   const [description, setDescription] = useState(link?.description ?? "")
   const [pinned, setPinned] = useState(initiallyPinned)
   const [touched, setTouched] = useState(false)
@@ -101,7 +103,7 @@ function LinkForm({
         </div>
         <div className="grid gap-2">
           <Label>Categoria</Label>
-          <Select value={category} onValueChange={(v) => setCategory(v as CategoryId)}>
+          <Select value={category} onValueChange={setCategory}>
             <SelectTrigger className="h-10! w-full" aria-label="Categoria">
               <SelectValue />
             </SelectTrigger>
@@ -164,6 +166,7 @@ function LinkForm({
 }
 
 export function LinkDialog({
+  categories,
   open,
   onOpenChange,
   link,
@@ -171,6 +174,7 @@ export function LinkDialog({
   initiallyPinned,
   onSubmit,
 }: {
+  categories: Category[]
   open: boolean
   onOpenChange: (open: boolean) => void
   link?: LinkItem
@@ -189,6 +193,7 @@ export function LinkDialog({
         </DialogHeader>
         <LinkForm
           key={link?.id ?? initialUrl ?? "new"}
+          categories={categories}
           link={link}
           initialUrl={initialUrl}
           initiallyPinned={initiallyPinned}

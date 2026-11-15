@@ -11,7 +11,7 @@ import {
   TimerIcon,
 } from "@phosphor-icons/react"
 import { getDomain } from "@/lib/hub"
-import type { LinkItem, Routine } from "@/lib/mock-data"
+import type { LinkItem, Routine } from "@/lib/types"
 import {
   Command,
   CommandDialog,

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useImperativeHandle, useState } from "react"
+import { useEffect, useState } from "react"
 import { motion } from "motion/react"
 import { toast } from "sonner"
 import { ArrowCounterClockwiseIcon, PauseIcon, PlayIcon } from "@phosphor-icons/react"
@@ -10,22 +10,15 @@ import { rise } from "./motion"
 const DURATION = { focus: 25 * 60, break: 5 * 60 } as const
 type Mode = keyof typeof DURATION
 
-export type FocusTimerHandle = { start: () => void }
-
-type TimerState = { mode: Mode; remaining: number; endsAt: number | null }
+export type TimerState = { mode: Mode; remaining: number; endsAt: number | null }
 
 const idle = (mode: Mode): TimerState => ({ mode, remaining: DURATION[mode], endsAt: null })
-const startTimer = (t: TimerState): TimerState => (t.endsAt ? t : { ...t, endsAt: Date.now() + t.remaining * 1000 })
+export const startTimer = (t: TimerState): TimerState =>
+  t.endsAt ? t : { ...t, endsAt: Date.now() + t.remaining * 1000 }
 
-export function FocusTimer({ ref }: { ref?: React.Ref<FocusTimerHandle> }) {
+/** Timer state lives in the hub shell so it keeps running while you switch pages. */
+export function useFocusTimer() {
   const [timer, setTimer] = useState<TimerState>(idle("focus"))
-  const running = timer.endsAt !== null
-
-  const start = () => setTimer(startTimer)
-  const pause = () => setTimer((t) => ({ ...t, endsAt: null }))
-  const switchMode = (mode: Mode) => setTimer(idle(mode))
-
-  useImperativeHandle(ref, () => ({ start: () => setTimer(startTimer) }), [])
 
   useEffect(() => {
     if (timer.endsAt === null) return
@@ -36,16 +29,28 @@ export function FocusTimer({ ref }: { ref?: React.Ref<FocusTimerHandle> }) {
         setTimer((t) => ({ ...t, remaining }))
         return
       }
-      setTimer((t) => {
-        const next: Mode = t.mode === "focus" ? "break" : "focus"
-        return idle(next)
-      })
+      setTimer((t) => idle(t.mode === "focus" ? "break" : "focus"))
       toast.success(timer.mode === "focus" ? "Sessão de foco concluída 🎉" : "Pausa encerrada", {
         description: timer.mode === "focus" ? "Hora de uma pausa de 5 minutos." : "Bora para mais um ciclo?",
       })
     }, 250)
     return () => clearInterval(id)
   }, [timer.endsAt, timer.mode])
+
+  return [timer, setTimer] as const
+}
+
+export function FocusTimer({
+  timer,
+  setTimer,
+}: {
+  timer: TimerState
+  setTimer: React.Dispatch<React.SetStateAction<TimerState>>
+}) {
+  const running = timer.endsAt !== null
+  const start = () => setTimer(startTimer)
+  const pause = () => setTimer((t) => ({ ...t, endsAt: null }))
+  const switchMode = (mode: Mode) => setTimer(idle(mode))
 
   const progress = 1 - timer.remaining / DURATION[timer.mode]
   const mm = String(Math.floor(timer.remaining / 60)).padStart(2, "0")
