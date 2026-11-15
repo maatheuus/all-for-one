@@ -20,6 +20,25 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Payload CMS
+
+Admin panel at [http://localhost:3000/admin](http://localhost:3000/admin). Create a `.env` file:
+
+```bash
+DATABASE_URL=file:./payload.db
+PAYLOAD_SECRET=<long random string>
+
+# used by `yarn seed:admin`
+SEED_ADMIN_EMAIL=admin@example.com
+SEED_ADMIN_PASSWORD=change-me
+```
+
+Create the first admin user (skips if the email already exists):
+
+```bash
+yarn seed:admin
+```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
